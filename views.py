@@ -64,6 +64,7 @@ def show_exam_result(request, course_id, submission_id):
         'course': course,
         'submission': submission,
         'total_score': total_score,
+        'possible': possible,  
         'max_score': max_score,
         'percentage': percentage,
         'passed': passed,
