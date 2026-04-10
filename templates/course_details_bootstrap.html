@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ course.name }}</h1>
+    <p>{{ course.description }}</p>
+
+    <h3>Lessons</h3>
+    <div class="list-group">
+        {% for lesson in course.lessons.all %}
+        <div class="list-group-item">
+            <h4>{{ lesson.title }}</h4>
+            <p>{{ lesson.content }}</p>
+
+            {% if lesson.questions.all %}
+            <a href="{% url 'take_exam' lesson.id %}" class="btn btn-primary">Take Exam</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
