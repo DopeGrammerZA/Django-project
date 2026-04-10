@@ -3,21 +3,69 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>{{ course.name }}</h1>
-    <p>{{ course.description }}</p>
+    <h1 class="text-primary">{{ course.name }}</h1>
+    <p class="lead">{{ course.description }}</p>
 
-    <h3>Lessons</h3>
-    <div class="list-group">
-        {% for lesson in course.lessons.all %}
-        <div class="list-group-item">
-            <h4>{{ lesson.title }}</h4>
-            <p>{{ lesson.content }}</p>
-
-            {% if lesson.questions.all %}
-            <a href="{% url 'take_exam' lesson.id %}" class="btn btn-primary">Take Exam</a>
-            {% endif %}
+    <h3 class="mt-4">Lessons</h3>
+    <div class="row">
+        {% for lesson in course.lesson_set.all %}
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h5>Lesson {{ forloop.counter }}: {{ lesson.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ lesson.content|truncatewords:30 }}</p>
+                </div>
+            </div>
         </div>
         {% endfor %}
     </div>
+
+    {% if user.is_authenticated %}
+    <div class="mt-4">
+        <button class="btn btn-success btn-lg" data-toggle="collapse" data-target="#examSection">
+            Start Exam
+        </button>
+    </div>
+
+    <div id="examSection" class="collapse mt-3">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4>Exam Questions</h4>
+            </div>
+            <div class="card-body">
+                <form id="examForm" action="{% url 'onlinecourse:submit' course.id %}" method="POST">
+                    {% csrf_token %}
+                    {% for question in course.question_set.all %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <strong>{{ question.text }}</strong> ({{ question.grade }} point(s))
+                        </div>
+                        <div class="card-body">
+                            {% for choice in question.choice_set.all %}
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       name="choice_{{ choice.id }}" 
+                                       class="form-check-input" 
+                                       value="{{ choice.id }}">
+                                <label class="form-check-label">
+                                    {{ choice.text }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">Submit Exam</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Please <a href="{% url 'onlinecourse:login' %}">login</a> to take the exam.
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
